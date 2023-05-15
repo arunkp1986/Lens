@@ -1,6 +1,3 @@
-/* This kernel module gives stack area details of child process of pid passed through character device
- * It hooks wake_up_new_task function to get task struct of process 
- * */
 
 #include <linux/init.h>
 #include <linux/module.h>
@@ -351,7 +348,7 @@ static ssize_t mychardev_write(struct file *file, const char __user *buf, size_t
 }
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("arunkp1986@gmail.com>");
+MODULE_AUTHOR("xyz@gmail.com>");
 
 module_init(mychardev_init);
 module_exit(mychardev_exit);
