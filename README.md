@@ -22,3 +22,7 @@ Activate Python3 virtual environment and install required packages using **requi
 After activating Python3 virtual environment and installing all requirements you can start **Lens** by running **lens.py** in **lens/source/** directory
 
 **python3 lens.py**
+
+Python version : Python 3.8.10
+Linux Kernel Version: 6.1.4
+Tkinter version 8.6
