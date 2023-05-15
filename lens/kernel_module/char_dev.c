@@ -58,9 +58,13 @@ LIST_HEAD(sysfs_list);
 struct pt_data{
     unsigned long vaddr;
     unsigned long pgd_entry;
+    unsigned pgd_flags;
     unsigned long pud_entry;
+    unsigned pud_flags;
     unsigned long pmd_entry;
+    unsigned pmd_flags;
     unsigned long pte_entry;
+    unsigned pte_flags;
 };
 
 struct pt_stats{
@@ -94,7 +98,7 @@ static ssize_t task_show(struct kobject *kobj, struct kobj_attribute *attr, char
     int ret;
     unsigned long dest_address = 0;
     //pr_info("task sysfs show called\n");
-    //pr_info("number of entries:%u\n",num_entries);
+    pr_info("number of entries:%u\n",num_entries);
     if(!flag){
         flag = num_entries;
 	//pr_info("inside num entries\n");
@@ -145,20 +149,29 @@ static inline pte_t* get_pte(struct mm_struct *mm, unsigned long addr, struct pt
     pgd = pgd_offset(mm, addr);
     if (pgd_none(*pgd) || unlikely(pgd_bad(*pgd)))
         goto out;
-    pt->pd.pgd_entry = pgd_val(*pgd);
+    //pt->pd.pgd_entry = pgd_val(*pgd);
+    pt->pd.pgd_entry = pgd_pfn(*pgd);
+    pt->pd.pgd_flags = pgd_flags(*pgd);
     p4d = p4d_offset(pgd, addr);
     if (p4d_none(*p4d)|| unlikely(p4d_bad(*p4d)))
         goto out;
     pud = pud_offset(p4d, addr);
     if (pud_none(*pud) || unlikely(pud_bad(*pud)))
         goto out;
-    pt->pd.pud_entry = pud_val(*pud);
+    //pt->pd.pud_entry = pud_val(*pud);
+    pt->pd.pud_entry = pud_pfn(*pud);
+    pt->pd.pud_flags = pud_flags(*pud);
     pmd = pmd_offset(pud, addr);
     if (pmd_none(*pmd))
        goto out;
-    pt->pd.pmd_entry = pmd_val(*pmd);
+    //pt->pd.pmd_entry = pmd_val(*pmd);
+    pt->pd.pmd_entry = pmd_pfn(*pmd);
+    pt->pd.pmd_flags = pmd_flags(*pmd);
     ptep = pte_offset_map(pmd, addr);
-    pt->pd.pte_entry = pte_val(*ptep);
+    //pt->pd.pte_entry = pte_val(*ptep);
+    pt->pd.pte_entry = pte_pfn(*ptep);
+    pt->pd.pte_flags = pte_flags(*ptep);
+    //printk("%lx,%lx,%lx,%lx\n",pgd_val(*pgd),pud_val(*pud),pmd_val(*pmd),pte_val(*ptep));
 out:
         return ptep;
 }
@@ -213,9 +226,13 @@ int ptextract_thread_fn(void * thread_data){
 	        INIT_LIST_HEAD(&pt->list);
 	        pt->pd.vaddr = vaddr;
                 pt->pd.pgd_entry = 0;
+                pt->pd.pgd_flags = 0;
                 pt->pd.pud_entry = 0;
+                pt->pd.pud_flags = 0;
                 pt->pd.pmd_entry = 0;
+                pt->pd.pmd_flags = 0;
 	        pt->pd.pte_entry = 0;
+	        pt->pd.pte_flags = 0;
 	        ptep = get_pte(mm, vaddr, pt);
 	        if(pt->pd.pgd_entry != 0){
 		    //printk("vaddr:%lx, pgd:%lx, pud:%lx, pmd:%lx, pte:%lx\n",pt->pd.vaddr,pt->pd.pgd_entry,pt->pd.pud_entry,pt->pd.pmd_entry,pt->pd.pte_entry);

@@ -35,22 +35,17 @@ w2.config(highlightbackground="#3e1ca8")
 frame.grid(row =0, column = 0)
 
 tb = tk.Text(root,height=20,width=100,wrap='word')
-tb.insert(1.0,"""#include <stdio.h>
-int main() {
-    int n, i;
-    unsigned long long fact = 1;
-    n = 10;
-    if (n < 0){
-        printf("n is negative");
-    }
-    else{
-        for (i = 1; i <= n; ++i) {
-            fact *= i;
-        }
-        printf("Factorial of %d = %llu", n, fact);
-    }
-    return 0;
-}""")
+tb.insert(1.0,r"""#include <stdlib.h>
+#include <stdio.h>
+int main(){
+ int size = 16;
+ char *ptr = malloc(size * sizeof(char));
+ printf("virtual addr of size variable: %p\n", &size);
+ printf("virtual addr of malloc'd memory: %p\n", ptr);
+ printf("virtual addr of main() function: %p\n", main);
+ free(ptr);
+ return 0;
+ }""")
 #text_box.pack(side=tk.LEFT,expand=True)
 tb.grid(row=1, column=0, sticky="nsew")
 
@@ -134,8 +129,16 @@ def tsave():
             if(count == 0):
                 g.write("""#include <sys/types.h> \n#include <unistd.h> \n#include <stdio.h> \n#include <time.h> \n#include <sys/stat.h> \n#include <fcntl.h> \n#include <stdlib.h> \n#include <string.h> \n#include <sys/wait.h> \n#include <signal.h>""")
                 g.write("\n")
-                g.write("""struct pt_data{unsigned long vaddr;unsigned long pgd_entry;unsigned long pud_entry;unsigned long pmd_entry;
-                unsigned long pte_entry;};\nstruct metadata{pid_t pid;unsigned long vaddr;unsigned num_entries;};""")
+                g.write("""struct pt_data{
+                unsigned long vaddr;
+                unsigned long pgd_entry;
+                unsigned pgd_flags;
+                unsigned long pud_entry;
+                unsigned pud_flags;
+                unsigned long pmd_entry;
+                unsigned pmd_flags;
+                unsigned long pte_entry;
+                unsigned pte_flags;};\nstruct metadata{pid_t pid;unsigned long vaddr;unsigned num_entries;};""")
                 g.write("\n")
             count += 1
             #if("main" in line):
@@ -183,7 +186,7 @@ def tsave():
                 int i_onomatopoeia = 0, j_onomatopoeia = 0;
                 struct pt_data *pagedata;
                 unsigned elem = 0;
-                fprintf(fPtr,"%s,%s,%s,%s,%s,%s,%s,%s\n","virtual_addr", "pgd_entry", "pud_entry","pud_flags", 
+                fprintf(fPtr,"%s,%s,%s,%s,%s,%s,%s,%s,%s\n","virtual_addr", "pgd_entry","pgd_flags","pud_entry","pud_flags", 
                 "pmd_entry","pmd_flags", "pte_entry","pte_flags");""")
                 g.write("\n")
                 g.write(r"""for(i_onomatopoeia = 0; i_onomatopoeia <loop_iter_onomatopoeia; i_onomatopoeia++){
@@ -195,6 +198,7 @@ def tsave():
             }
             elem = ret/sizeof(struct pt_data);
             char flags[5] ={'_','_','_','_','\0'};
+            char pgd_flags[4] ={'_','_','_','\0'};
             char pmd_flags[6] ={'_','_','_','_','_','\0'};
             char pud_flags[6] ={'_','_','_','_','_','\0'};""")
                 g.write("\n")
@@ -203,6 +207,9 @@ def tsave():
                 flags[1] = '_';
                 flags[2] = '_';
                 flags[3] = '_';
+                pgd_flags[0] = '_';
+                pgd_flags[1] = '_';
+                pgd_flags[2] = '_';
                 pmd_flags[0] ='_';
                 pmd_flags[1] ='_';
                 pmd_flags[2] ='_';
@@ -215,74 +222,86 @@ def tsave():
                 pud_flags[4] ='_';
                 pagedata = (struct pt_data *)((unsigned long)databuf+(j_onomatopoeia*sizeof(struct pt_data)));
                 if(pagedata->pte_entry){
-                if(pagedata->pte_entry&(0x2)){
+                if(pagedata->pte_flags&(0x2)){
                     flags[3] = 'W';
                 }else{
                     flags[3] = 'R';
                 }
-                if(pagedata->pte_entry&(0x4)){
+                if(pagedata->pte_flags&(0x4)){
                     flags[2] = 'U';
                 }else{
                     flags[2] = 'S';
                 }
-                if(pagedata->pte_entry&(0x20)){
+                if(pagedata->pte_flags&(0x20)){
                     flags[1] = 'A';
                 }
-                if(pagedata->pte_entry&(0x40)){
+                if(pagedata->pte_flags&(0x40)){
                     flags[0] = 'D';
                 }
                 }
                 if(pagedata->pmd_entry){
-                if(pagedata->pmd_entry&(0x2)){
+                if(pagedata->pmd_flags&(0x2)){
                     pmd_flags[4] = 'W';
                 }else{
                     pmd_flags[4] = 'R';
                 }
-                if(pagedata->pmd_entry&(0x4)){
+                if(pagedata->pmd_flags&(0x4)){
                     pmd_flags[3] = 'U';
                 }else{
                    pmd_flags[3] = 'S';
                 }
-                if(pagedata->pmd_entry&(0x20)){
+                if(pagedata->pmd_flags&(0x20)){
                     pmd_flags[2] = 'A';
                 }
-                if(pagedata->pmd_entry&(0x80) && pagedata->pmd_entry&(0x40)){
+                if(pagedata->pmd_flags&(0x80) && pagedata->pmd_flags&(0x40)){
                     pmd_flags[1] = 'D';
-                }else{
-                    pmd_flags[1] = 'X';
                 }
-                if(pagedata->pmd_entry&(0x80)){
+                if(pagedata->pmd_flags&(0x80)){
                     pmd_flags[0] = 'H';
                 }else{
                     pmd_flags[0] = 'M';
                 }
                 }
                 if(pagedata->pud_entry){
-                if(pagedata->pud_entry&(0x2)){
+                if(pagedata->pud_flags&(0x2)){
                     pud_flags[4] = 'W';
                 }else{
                     pud_flags[4] = 'R';
                 }
-                if(pagedata->pud_entry&(0x4)){
+                if(pagedata->pud_flags&(0x4)){
                     pud_flags[3] = 'U';
                 }else{
                     pud_flags[3] = 'S';
                 }
-                if(pagedata->pud_entry&(0x20)){
+                if(pagedata->pud_flags&(0x20)){
                     pud_flags[2] = 'A';
                 }
-                if(pagedata->pud_entry&(0x80) && pagedata->pud_entry&(0x40)){
+                if(pagedata->pud_flags&(0x80) && pagedata->pud_flags&(0x40)){
                     pud_flags[1] = 'D';
-                }else{
-                    pud_flags[1] = 'X';
                 }
-                if(pagedata->pud_entry&(0x80)){
+
+                if(pagedata->pud_flags&(0x80)){
                     pud_flags[0] = 'G';
                 }else{
-                    pud_flags[0] = 'U';
+                    pud_flags[0] = 'M';
                 }
                 }
-                fprintf(fPtr,"%lx,%lx,%lx,%s,%lx,%s,%lx,%s\n",pagedata->vaddr, pagedata->pgd_entry, pagedata->pud_entry,pud_flags,pagedata->pmd_entry,pmd_flags,pagedata->pte_entry,flags);}""")
+                if(pagedata->pgd_entry){
+                if(pagedata->pgd_flags&(0x2)){
+                    pgd_flags[2] = 'W';
+                }else{
+                    pgd_flags[2] = 'R';
+                }
+                if(pagedata->pgd_flags&(0x4)){
+                    pgd_flags[1] = 'U';
+                }else{
+                    pgd_flags[1] = 'S';
+                }
+                if(pagedata->pgd_flags&(0x20)){
+                    pgd_flags[0] = 'A';
+                }
+                }
+                fprintf(fPtr,"%lx,%lx,%s,%lx,%s,%lx,%s,%lx,%s\n",pagedata->vaddr,pagedata->pgd_entry,pgd_flags, pagedata->pud_entry,pud_flags,pagedata->pmd_entry,pmd_flags,pagedata->pte_entry,flags);}""")
                 g.write("\n")
                 g.write("""  } \nfclose(fPtr);\nclose(chdev_fd);\n""")
     if(foundline == 0):
@@ -293,13 +312,14 @@ def tsave():
 
     copymode("program.c", abspath)
     move(abspath, "program_tmp.c")
-
-    #rc = subprocess.call("./run.sh")
-    """
+    directory = os.getcwd()
+    #print(directory+"/run.sh")
+    rc = subprocess.call("./run.sh")
+    
     with open("output.out","r") as f2:
         out = f2.read()
     l4 = tk.Label(fm3, text=out, bg='#f0f0f0')
-    l4.grid(row=0, column=0)"""
+    l4.grid(row=0, column=0)
     fm3.grid(row=4, column=0, sticky=tk.NSEW)
 
 check_dirty = tk.IntVar()
@@ -319,7 +339,7 @@ def fmapping():
     #lbl1.grid(row=0,column=1)
     #lbl1.config(font=("Times bold", 12))
     #lbl1.config(fg="#000000")
-    lbl2 = tk.Label(fm5, text="Dirty(D)/Ignore(X),")
+    lbl2 = tk.Label(fm5, text="Dirty(D),")
     lbl2.grid(row=0,column=0)
     lbl2.config(font=("Times bold", 12))
     lbl2.config(fg="#cc0000")
@@ -335,14 +355,14 @@ def fmapping():
     lbl5.grid(row=0,column=3)
     lbl5.config(font=("Times bold", 12))
     lbl5.config(fg="#6e2626")
-    lbl6 = tk.Label(fm5, text="Maps 4KB Page(M)/2MB Page(H)[PMD],")
+    lbl6 = tk.Label(fm5, text="Maps 4KB Page(M),2MB Page(H)[PMD],")
     lbl6.grid(row=0,column=4)
     lbl6.config(font=("Times bold", 12))
     lbl6.config(fg="#a81c40")
-    lbl7 = tk.Label(fm5, text="Maps 4KB Page(U)/1GB Page(G)[PUD]")
+    lbl7 = tk.Label(fm5, text="1GB Page(G)[PUD]")
     lbl7.grid(row=0,column=5)
     lbl7.config(font=("Times bold", 12))
-    lbl7.config(fg="#03062c")
+    lbl7.config(fg="#6e2626")
 
 
     #chb1 = tk.Checkbutton(top, text = "Dirty", variable = check_dirty, onvalue = 1,offvalue = 0)
@@ -353,15 +373,15 @@ def fmapping():
     fm4.pack(fill='both', expand=True)
     pd.set_option('colheader_justify', 'center')
     df = pd.read_csv("output.csv")
-    address = "7ffff7da4000"
-    addressrange = []
-    for i in range(4):
-        addr = int(address,16)+(i*4096)
-        h = hex(addr)
-        addressrange.append(h[2:])
-    df_new = df[df["virtual_addr"].isin(addressrange)]
+    #address = "7fffffffe000"
+    #addressrange = []
+    #for i in range(1):
+     #   addr = int(address,16)+(i*4096)
+      #  h = hex(addr)
+       # addressrange.append(h[2:])
+    #df_new = df[df["virtual_addr"].isin(addressrange)]
     #print(df_new)
-    pt = Table(fm4, dataframe=df_new, showstatusbar=True)
+    pt = Table(fm4, dataframe=df, showstatusbar=True)
     pt.columnformats['alignment']['virtual_addr'] = 'center'
     pt.columncolors['pud_flags'] = '#b0e0e6'
     pt.columncolors['pmd_flags'] = '#b0e0e6'
