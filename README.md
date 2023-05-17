@@ -21,7 +21,11 @@ Create a Python3 virtual environment, by following instruction for your Linux di
 
 For Ubuntu use **python3 -m venv myenv**
 
-Activate Python3 virtual environment and install required packages using **requirements.txt** file provided under **lens**
+Activate Python3 virtual environment by running below command
+
+**source myenv/bin/activate**
+
+Install required packages in the Python virtual environment by using **requirements.txt** file provided under **lens** folder
 
 **pip install -r requirements.txt**
 
