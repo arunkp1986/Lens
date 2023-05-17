@@ -1,7 +1,7 @@
 # Lens
 Lens: Experiencing Multi-level Page Tables at Close Quarters
 
-𝐿𝑒𝑛𝑠 provides a simple, flexible and intuitive interface which can be used to develop holistic understanding of virtual to physical memory address translation using multi-level page tables by correlating execution of simple C programs with OS-level status of the multi-level page tables.
+Lens provides a simple, flexible and intuitive interface which can be used to develop holistic understanding of virtual to physical memory address translation using multi-level page tables by correlating execution of simple C programs with OS-level status of the multi-level page tables.
 
 ## Step to setup and start Lens application
 
