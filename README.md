@@ -7,9 +7,11 @@ Lens provides a simple, flexible and intuitive interface which can be used to de
 
 change directory into **lens** folder
 ### Step 1
-Add your username to /etc/sudoers for file "insert\_module.sh" contained in **lens/source** folder with sudo permission
+Add your username to /etc/sudoers for file **insert\_module.sh** contained in **lens/source** folder with sudo permission
 
 in Ubuntu system type **sudo visudo** to edit  /etc/sudoers file and add **username ALL=(root) NOPASSWD: path to lens/source/insert\_module.sh**
+
+Then execute **./insert_module.sh** present in **lens/source** folder
 
 ### Step 2
 Lens uses Python **Tkinter** for user interface, install Tkinter for your Linux distribution.
