@@ -9,7 +9,7 @@ change directory into **lens** folder
 ### Step 1
 Add your username to /etc/sudoers for file "insert\_module.sh" contained in **lens/source** folder with sudo permission
 
-in Ubuntu system type **sudo visudo** to edit  /etc/sudoers file and add username ALL=(root) NOPASSWD: path to lens/source/insert\_module.sh
+in Ubuntu system type **sudo visudo** to edit  /etc/sudoers file and add **username ALL=(root) NOPASSWD: path to lens/source/insert\_module.sh**
 
 ### Step 2
 Lens uses Python **Tkinter** for user interface, install Tkinter for your Linux distribution.
