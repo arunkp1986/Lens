@@ -1,7 +1,7 @@
 #!/bin/bash
 CWD=$(pwd)
 
-cd ../pagetable-extract/page_table_module
+cd ../kernel_module
 make clean
 rmmod ptextract
 make

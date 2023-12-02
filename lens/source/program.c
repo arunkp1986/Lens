@@ -1,16 +1,11 @@
+#include <stdlib.h>
 #include <stdio.h>
-int main() {
-    int n, i;
-    unsigned long long fact = 1;
-    n = 10;
-    if (n < 0){
-        printf("n is negative");
-    }
-    else{
-        for (i = 1; i <= n; ++i) {
-            fact *= i;
-        }
-        printf("Factorial of %d = %llu", n, fact);
-    }
-    return 0;
-}
+int main(){
+ int size = 16;
+ char *ptr = malloc(size * sizeof(char));
+ printf("virtual addr of size variable: %p\n", &size);
+ printf("virtual addr of malloc'd memory: %p\n", ptr);
+ printf("virtual addr of main() function: %p\n", main);
+ free(ptr);
+ return 0;
+ }
