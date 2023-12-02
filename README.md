@@ -9,7 +9,7 @@ change directory into **lens** folder
 ### Step 1
 Add your username to /etc/sudoers for file **insert\_module.sh** contained in **lens/source** folder with sudo permission
 
-in Ubuntu system type **sudo visudo** to edit  /etc/sudoers file and add **username ALL=(ALL:ALL) ALL**
+in Ubuntu system type **sudo visudo** to edit  /etc/sudoers file and add **username ALL=(ALL:ALL) ALL**, here replace **username** with your username, in Linux check using **whoami**
 
 
 ### Step 2
