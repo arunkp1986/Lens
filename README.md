@@ -11,7 +11,6 @@ Add your username to /etc/sudoers for file **insert\_module.sh** contained in **
 
 in Ubuntu system type **sudo visudo** to edit  /etc/sudoers file and add **username ALL=(ALL:ALL) ALL**
 
-Then execute **sudo ./insert_module.sh** present in **lens/source** folder
 
 ### Step 2
 Lens uses Python **Tkinter** for user interface, install Tkinter for your Linux distribution.
