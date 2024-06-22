@@ -46,4 +46,4 @@ Python version : Python 3.8.10
 Linux Kernel Version: 6.1.4
 Tkinter version 8.6
 
-Note: We thank Nayana Narayan for designing the logo for Lens.
+Note: We thank Nayana Narayanan for designing the logo for Lens.
